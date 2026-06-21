@@ -26,7 +26,12 @@ code/Matching_Models/DINOv2/
 *.bin
 
 # ==================== 数据集（大文件，需单独下载） ====================
-code/Data/
+code/Data/UAV_image/
+code/Data/Reference_map/
+code/Data/Satellite/
+# 保留元数据和姿态文件
+!code/Data/metadata/
+!code/Data/UAV_image/*/smart_pos*.txt
 
 # ==================== 实验输出（可重新生成） ====================
 code/Result/
