@@ -59,69 +59,87 @@ UAV图像 → 图像检索（CAMP）→ 图像匹配（RoMa）→ PnP求解（P3
 
 ---
 
-## 快速开始
+## 新电脑恢复项目指南
 
-### 1. 克隆仓库
+### 完整恢复流程（10分钟）
+
+#### 步骤1：克隆仓库（1分钟）
 
 ```bash
 git clone https://github.com/deercyberx/water-target-localization.git
 cd water-target-localization
 ```
 
-### 2. 环境搭建
+#### 步骤2：安装Python 3.9（2分钟）
 
 ```bash
-# 创建虚拟环境
+# Windows（使用winget）
+winget install Python.Python.3.9
+
+# 或从官网下载：https://www.python.org/downloads/release/python-3913/
+```
+
+#### 步骤3：创建虚拟环境（1分钟）
+
+```bash
 python -m venv .venv
 .venv\Scripts\activate
+```
 
+#### 步骤4：安装依赖（2分钟）
+
+```bash
 # 安装PyTorch（CUDA 12.1）
 pip install torch==2.2.1 torchvision==0.17.1 --index-url https://download.pytorch.org/whl/cu121
 
-# 安装其他依赖
+# 安装项目依赖
 pip install -r code/requirements.txt
+
+# 安装报告生成依赖
 pip install python-docx matplotlib pandas pillow
 ```
 
-**环境要求**：
-- Python 3.9
-- PyTorch 2.2.1 + CUDA 12.1
-- GPU: NVIDIA RTX 3080 (10GB) 或更高
+#### 步骤5：下载模型权重（3分钟）
 
-### 3. 下载模型权重
+从网盘下载权重文件：
 
-从网盘下载权重文件，放到对应目录：
-
-| 模型 | 大小 | 目标路径 |
-|------|------|---------|
+| 模型 | 大小 | 下载后放到 |
+|------|------|-----------|
 | CAMP | 349MB | `code/Retrieval_Models/CAMP/checkpoints/` |
 | RoMa | 426MB | `code/Matching_Models/RoMa/ckpt/` |
 | DINOv2 | 1.2GB | `code/Matching_Models/RoMa/ckpt/` |
 
-### 4. 下载数据集
+**目录结构示例**：
+```
+code/Retrieval_Models/CAMP/checkpoints/
+└── university/
+    └── convnext_base.fb_in22k_ft_in1k_384/
+        └── best.pth
+
+code/Matching_Models/RoMa/ckpt/
+├── outdoor.pth
+└── dinov2_vitl14_pretrain.pth
+```
+
+#### 步骤6：下载数据集（2分钟）
 
 从网盘下载 `Data.rar`，解压到 `code/Data/`
 
-数据集包含：
-- 487张UAV图像（青州古镇 1/25）
-- 3个测试场景：QZ_SongCity、Qingzhou_3_2、QingZhou_2024
-
-### 5. 应用代码修改
-
-参考 `日志/LEARNINGS.md` 中的"代码修改记录"：
-
-```python
-# 1. code/Retrieval_Models/CAMP/get_CAMP.py:133
-# 原: args = parser.parse_args(namespace=self)
-# 改: args = parser.parse_args([], namespace=self)
-
-# 2. code/Matching_Models/RoMa/demo/Roma_match.py:16
-# 添加: coarse_res=280, upsample_res=512
-
-# 3. 新建 code/Matching_Models/SIFT/SIFT_match.py
+**目录结构示例**：
+```
+code/Data/
+├── metadata/
+│   └── QZ_Town.json
+├── UAV_image/
+│   └── QZ_Town/
+│       ├── QZ_SongCity/
+│       ├── Qingzhou_3_2/
+│       └── QingZhou_2024/
+└── Reference_map/
+    └── QZ_Town/
 ```
 
-### 6. 验证环境
+#### 步骤7：验证环境（1分钟）
 
 ```bash
 cd code
@@ -129,6 +147,110 @@ python Baseline.py --help
 ```
 
 如果显示帮助信息，说明环境配置成功。
+
+#### 步骤8：查看项目状态
+
+```bash
+# 查看当前任务
+cat 日志/ACTIVE.md
+
+# 查看待办事项
+cat 日志/TASKS.md
+
+# 查看最新进展
+tail -50 日志/LOG.md
+```
+
+---
+
+### 环境要求
+
+| 项目 | 要求 |
+|------|------|
+| Python | 3.9（必须，不要用3.10+） |
+| PyTorch | 2.2.1 + CUDA 12.1 |
+| GPU | NVIDIA RTX 3080 (10GB) 或更高 |
+| RAM | 16GB+ |
+| 磁盘 | 10GB+（代码+权重+数据集） |
+
+---
+
+### 文件说明
+
+#### Git仓库已包含（177个文件）
+
+- ✅ 项目代码（排除权重和数据集）
+- ✅ 日志系统（5个文件）
+- ✅ 第五章初稿和素材
+- ✅ 实验数据CSV（7个文件）
+- ✅ 图表素材（14张小图）
+- ✅ 报告生成脚本（20个）
+- ✅ 论文和笔记
+- ✅ README文档
+- ✅ 数据集元数据和姿态文件
+
+#### 需要单独下载（网盘）
+
+- ❌ 模型权重：CAMP + RoMa + DINOv2（共2.2GB）
+- ❌ 数据集：Data.rar（4.2GB）
+
+---
+
+### 常见问题
+
+#### Q1: pip安装超时
+
+```bash
+# 使用国内镜像
+pip install -r code/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+#### Q2: CUDA版本不匹配
+
+```bash
+# 检查CUDA版本
+nvidia-smi
+
+# 根据CUDA版本选择PyTorch
+# CUDA 11.8: torch==2.2.1+cu118
+# CUDA 12.1: torch==2.2.1+cu121
+```
+
+#### Q3: GPU OOM（显存不足）
+
+已在代码中处理，RoMa分辨率已降低：
+```python
+coarse_res=280, upsample_res=512  # 原始: 560, 864
+```
+
+#### Q4: 中文路径读取失败
+
+使用PIL替代cv2：
+```python
+from PIL import Image
+img = Image.open('中文路径.png')  # cv2不支持中文路径
+```
+
+#### Q5: argparse冲突
+
+CAMP初始化已修改：
+```python
+args = parser.parse_args([], namespace=self)  # 添加空列表参数
+```
+
+---
+
+### 日常同步命令
+
+```bash
+# 拉取最新
+git pull
+
+# 提交修改
+git add .
+git commit -m "描述修改内容"
+git push
+```
 
 ---
 
