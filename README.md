@@ -1,83 +1,272 @@
-﻿# 论文复现: [论文标题]
+# 水面目标精准定位技术报告
 
-## 基本信息
+> 面向水面应急救援的机载双光融合人体目标精准感知方法研究
 
-- 论文: [标题]
-- 作者: [作者]
-- 链接: [arXiv / DOI]
-- 复现目标: [你要复现的具体指标/图表]
+## 项目概述
 
-## 环境
+本项目基于 CVPR 2026 Findings 论文《Exploring the best way for UAV visual localization under Low-altitude Multi-view Observation Condition: a Benchmark》，复现并适配低空多视角UAV视觉定位链路，用于水面应急救援场景的目标精准定位。
 
-- Python: 3.10+
-- GPU: [有/无]
-- 依赖安装: pip install -r requirements.txt
+### 技术路线
 
-## 快速开始
-
-```powershell
-cd code
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python train.py
+```
+UAV图像 → 图像检索（CAMP）→ 图像匹配（RoMa）→ PnP求解（P3P+RANSAC）→ 地理坐标
 ```
 
-## 实验
+### 最佳组合
 
-```powershell
-cd experiments
-powershell -ExecutionPolicy Bypass -File run_experiment.ps1
-```
-
-## 已知差异
-
-| 实现点 | 论文描述 | 当前实现 | 原因 |
-|--------|----------|----------|------|
-| [模块1] | [论文原文] | [你的实现] | [假设/差异原因] |
+- **检索模型**：CAMP（ConvNeXt-Base）
+- **匹配模型**：RoMa（DINOv2-ViT-L）
+- **定位策略**：Top N Re-rank
+- **性能**：A@5m = 82.3%（航空图），中位数误差 2.4m
 
 ---
 
-## Prompt 模板
-
-### Round 1: 跑通环境
+## 目录结构
 
 ```
-目标: 稳定运行当前仓库。
-请完成:
-1) 修复 import/runtime error
-2) 输出可直接复制的运行命令 (Windows PowerShell)
-3) 先跑 train 1 epoch, 确保可正常结束
-4) 给出: 已修复点 + 未解决问题 + 下一步优先级
+水上目标定位/
+├── 日志/                          # 项目状态日志
+│   ├── ACTIVE.md                  # 当前任务焦点
+│   ├── TASKS.md                   # 任务进度
+│   ├── LOG.md                     # 活动记录
+│   ├── CONTEXT.md                 # 项目核心信息
+│   └── LEARNINGS.md               # 可复用经验
+├── reports/                       # 报告文件
+│   ├── 水面目标精准定位技术报告_终稿_v5.docx
+│   ├── 水面目标精准定位技术报告第五章提纲_终稿.docx
+│   ├── 第五章_实验验证与结果分析_poi-tl_v2.docx
+│   └── 素材清单.md
+├── paper/                         # 论文和笔记
+│   ├── *.pdf                      # 原始论文
+│   ├── notes.md                   # 论文笔记（359行）
+│   └── paper_markdown.md          # 论文Markdown版
+├── 素材/                          # 实验数据和图表
+│   ├── 实验数据/                  # CSV实验结果
+│   └── 截图/                      # 图表素材
+├── scripts/                       # 生成脚本
+│   ├── data/                      # 数据处理脚本
+│   └── report/                    # 报告生成脚本
+├── code/                          # 论文代码（需额外下载权重和数据集）
+│   ├── Baseline.py                # 主入口
+│   ├── config.yaml                # 配置文件
+│   ├── utils.py                   # 核心工具函数
+│   ├── Retrieval_Models/          # 检索模型
+│   ├── Matching_Models/           # 匹配模型
+│   └── Regions_params/            # 区域参数
+├── 参考素材/                       # 参考资料
+└── .gitignore                     # Git忽略规则
 ```
 
-### Round 2: 对齐论文
+---
 
-```
-目标: 把实现对齐到论文。
-请按 paper/notes.md 逐项检查:
-- loss function / optimizer / scheduler / model layer
-每改一处都说明: 改了什么、对应论文哪节、可能对结果有什么影响
-```
+## 快速开始
 
-### Round 3: 正式实验
+### 1. 克隆仓库
 
-```
-目标: 建立可复现实验流程。
-请完成:
-1) 增加实验脚本
-2) 固定 seed
-3) 训练日志写入 logs/
-4) 输出指标 CSV
-5) 给一个可重复运行命令
+```bash
+git clone https://github.com/deercyberx/water-target-localization.git
+cd water-target-localization
 ```
 
-### 调试闭环 (通用)
+### 2. 环境搭建
 
+```bash
+# 创建虚拟环境
+python -m venv .venv
+.venv\Scripts\activate
+
+# 安装PyTorch（CUDA 12.1）
+pip install torch==2.2.1 torchvision==0.17.1 --index-url https://download.pytorch.org/whl/cu121
+
+# 安装其他依赖
+pip install -r code/requirements.txt
+pip install python-docx matplotlib pandas pillow
 ```
-请修复当前错误:
-1) 根因
-2) 最小修复
-3) 是否影响论文对齐
-4) 如果信息不足, 列出你的假设
+
+**环境要求**：
+- Python 3.9
+- PyTorch 2.2.1 + CUDA 12.1
+- GPU: NVIDIA RTX 3080 (10GB) 或更高
+
+### 3. 下载模型权重
+
+从网盘下载权重文件，放到对应目录：
+
+| 模型 | 大小 | 目标路径 |
+|------|------|---------|
+| CAMP | 349MB | `code/Retrieval_Models/CAMP/checkpoints/` |
+| RoMa | 426MB | `code/Matching_Models/RoMa/ckpt/` |
+| DINOv2 | 1.2GB | `code/Matching_Models/RoMa/ckpt/` |
+
+### 4. 下载数据集
+
+从网盘下载 `Data.rar`，解压到 `code/Data/`
+
+数据集包含：
+- 487张UAV图像（青州古镇 1/25）
+- 3个测试场景：QZ_SongCity、Qingzhou_3_2、QingZhou_2024
+
+### 5. 应用代码修改
+
+参考 `日志/LEARNINGS.md` 中的"代码修改记录"：
+
+```python
+# 1. code/Retrieval_Models/CAMP/get_CAMP.py:133
+# 原: args = parser.parse_args(namespace=self)
+# 改: args = parser.parse_args([], namespace=self)
+
+# 2. code/Matching_Models/RoMa/demo/Roma_match.py:16
+# 添加: coarse_res=280, upsample_res=512
+
+# 3. 新建 code/Matching_Models/SIFT/SIFT_match.py
 ```
+
+### 6. 验证环境
+
+```bash
+cd code
+python Baseline.py --help
+```
+
+如果显示帮助信息，说明环境配置成功。
+
+---
+
+## 运行实验
+
+### 完整测试（487张）
+
+```bash
+cd code
+python Baseline.py --Ref_type HIGH --strategy Topn_opt
+```
+
+### 参数说明
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `--Ref_type` | HIGH | 参考图类型：HIGH=航空图，LOW=卫星图 |
+| `--strategy` | Topn_opt | 定位策略：Top1/Topn_opt/MostInliers |
+| `--TEST_INTERVAL` | 20 | 测试间隔（每N张测1张） |
+| `--RETRIEVAL_TOPN` | 5 | 检索Top-N数量 |
+
+### 输出结果
+
+结果保存在 `code/Result/{Ref_type}/QZ_Town/` 目录：
+- `results.csv`：逐图定位结果
+- `*.png`：可视化结果（需开启 `SHOW_RETRIEVAL_RESULT=True`）
+
+---
+
+## 实验结果
+
+### 主结果（CAMP + RoMa + Top N Re-rank）
+
+| 参考图 | A@5m | A@10m | A@20m | 平均误差 | 中位数误差 |
+|--------|------|-------|-------|---------|-----------|
+| 航空图 | 82.3% | 90.3% | 95.9% | 28.1m | 2.4m |
+| 卫星图 | 13.6% | 39.4% | 63.7% | 100.0m | 13.4m |
+
+### 分场景结果（航空图）
+
+| 场景 | 样本数 | A@5m | 平均误差 |
+|------|--------|------|---------|
+| QZ_SongCity | 286 | 98.3% | 1.73m |
+| Qingzhou_3_2 | 59 | 96.6% | 3.04m |
+| QingZhou_2024 | 142 | 44.4% | 91.75m |
+
+### 定位策略对比
+
+| 策略 | A@5m | A@10m | A@20m |
+|------|------|-------|-------|
+| Top N Re-rank | **82.3%** | **90.3%** | **95.9%** |
+| Top1 | 68.8% | 78.2% | 81.9% |
+| Most Inliers | 79.5% | 86.2% | 87.3% |
+
+---
+
+## 报告撰写
+
+### 当前进度
+
+- ✅ 第一章~第四章：已完成
+- ✅ 第五章：初稿完成（12张表+7张图+完整正文）
+- ⏳ 第六章：待撰写
+
+### 第五章素材
+
+- **表格数据**：`素材/实验数据/第五章表格数据.md`
+- **图表素材**：`素材/截图/fig5_*.png`（7张）
+- **初稿文件**：`reports/第五章_实验验证与结果分析_poi-tl_v2.docx`
+- **提纲文件**：`reports/水面目标精准定位技术报告第五章提纲_终稿.docx`
+
+---
+
+## 日志系统
+
+项目使用双层日志系统追踪进度：
+
+| 文件 | 用途 | 更新频率 |
+|------|------|---------|
+| `日志/ACTIVE.md` | 当前任务焦点 | 每次对话开始 |
+| `日志/TASKS.md` | 任务进度（checkbox） | 任务完成时 |
+| `日志/LOG.md` | 活动记录 | 每次工作结束 |
+| `日志/CONTEXT.md` | 项目核心信息 | 信息变化时 |
+| `日志/LEARNINGS.md` | 可复用经验 | 遇到问题时 |
+
+### 新对话启动
+
+```bash
+cat 日志/ACTIVE.md    # 查看当前任务
+cat 日志/TASKS.md     # 查看待办事项
+tail -50 日志/LOG.md  # 查看最新进展
+```
+
+---
+
+## 常见问题
+
+### GPU OOM（显存不足）
+
+降低RoMa分辨率：
+```python
+# code/Matching_Models/RoMa/demo/Roma_match.py:16
+coarse_res=280, upsample_res=512  # 原始: 560, 864
+```
+
+### 中文路径读取失败
+
+使用PIL替代cv2：
+```python
+from PIL import Image
+img = Image.open('中文路径.png')  # cv2不支持中文路径
+```
+
+### argparse冲突
+
+修改CAMP初始化：
+```python
+# code/Retrieval_Models/CAMP/get_CAMP.py:133
+args = parser.parse_args([], namespace=self)  # 添加空列表参数
+```
+
+---
+
+## 参考文献
+
+- Ye et al. "Exploring the best way for UAV visual localization under Low-altitude Multi-view Observation Condition: a Benchmark." CVPR 2026 Findings.
+- 项目代码：https://github.com/UAV-AVL/Benchmark
+
+---
+
+## 许可证
+
+本项目仅供学术研究使用。
+
+---
+
+## 联系方式
+
+- 项目负责人：张洲宇
+- 编撰：段富宇
+- 项目来源：北京市航空智能遥感装备工程技术研究中心开放基金
