@@ -1,0 +1,59 @@
+# ==================== Python ====================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# ==================== IDE ====================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ==================== 模型权重（大文件，需单独下载） ====================
+code/Retrieval_Models/CAMP/checkpoints/
+code/Matching_Models/RoMa/ckpt/
+code/Matching_Models/DINOv2/
+*.pth
+*.pt
+*.ckpt
+*.bin
+
+# ==================== 数据集（大文件，需单独下载） ====================
+code/Data/
+
+# ==================== 实验输出（可重新生成） ====================
+code/Result/
+code/Output/
+*.pkl
+*.pickle
+
+# ==================== 临时文件 ====================
+~$*
+*.tmp
+*.temp
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ==================== 日志和缓存 ====================
+*.log
+.cache/
+logs/
+
+# ==================== 大型图片（>10MB） ====================
+# 保留报告素材，但排除原始数据集图片
+code/assets/*.png
+code/assets/*.jpg
+素材/截图/qingzhou_2024_*.jpg
+素材/截图/dsm_example.tif
+素材/截图/pipeline_vis/
+
+# ==================== Word临时文件 ====================
+~$*.docx
