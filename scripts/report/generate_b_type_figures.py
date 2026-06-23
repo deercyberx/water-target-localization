@@ -341,10 +341,12 @@ def visualize_sample(sample_info, config, region_config, method_dict, ref_map0, 
 # 拼接图5-3: 3行x4列
 # ============================================================
 def compose_fig5_3(results, save_dir):
-    """拼接图5-3：成功/一般/失败 x 4列"""
+    """拼接图5-3：成功/一般/失败 x 4列，第二列加宽显示检索候选"""
     print("拼接图5-3...")
 
-    fig, axes = plt.subplots(3, 4, figsize=(16, 11))
+    fig = plt.figure(figsize=(18, 11))
+    gs = fig.add_gridspec(3, 4, width_ratios=[1, 1.5, 1, 1], wspace=0.15, hspace=0.25)
+    axes = [[fig.add_subplot(gs[r, c]) for c in range(4)] for r in range(3)]
     col_titles = ['①查询UAV图像', '②检索Top-N候选', '③RoMa匹配点', '④PnP定位结果']
 
     for row, r in enumerate(results):
@@ -356,42 +358,42 @@ def compose_fig5_3(results, save_dir):
         query_path = save_dir / f'{img_name}_query.png'
         if query_path.exists():
             img = np.array(Image.open(str(query_path)).convert('RGB'))
-            axes[row, 0].imshow(img)
-        axes[row, 0].set_title(label, fontsize=10, fontweight='bold',
+            axes[row][0].imshow(img)
+        axes[row][0].set_title(label, fontsize=10, fontweight='bold',
                                color='green' if error < 5 else 'orange' if error < 50 else 'red')
-        axes[row, 0].axis('off')
+        axes[row][0].axis('off')
 
         # 列2: 检索候选（每个样本有独立的检索结果图）
         retrieval_path = save_dir / f'{img_name}_retrieval.png'
         if retrieval_path.exists():
             ret_img = np.array(Image.open(str(retrieval_path)).convert('RGB'))
-            axes[row, 1].imshow(ret_img)
+            axes[row][1].imshow(ret_img)
         else:
-            axes[row, 1].text(0.5, 0.5, f'Top-5候选图块\n(检索结果)', ha='center', va='center',
+            axes[row][1].text(0.5, 0.5, f'Top-5候选图块\n(检索结果)', ha='center', va='center',
                              fontsize=9, bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8))
-        axes[row, 1].set_title('②检索Top-N候选', fontsize=10)
-        axes[row, 1].axis('off')
+        axes[row][1].set_title('②检索Top-N候选', fontsize=10)
+        axes[row][1].axis('off')
 
         # 列3: 匹配点
         match_path = save_dir / f'{img_name}_match_clean.png'
         if match_path.exists():
             match_img = np.array(Image.open(str(match_path)).convert('RGB'))
-            axes[row, 2].imshow(match_img)
+            axes[row][2].imshow(match_img)
         else:
-            axes[row, 2].text(0.5, 0.5, f'内点数: {r["inliers"]}', ha='center', va='center',
+            axes[row][2].text(0.5, 0.5, f'内点数: {r["inliers"]}', ha='center', va='center',
                              fontsize=9, bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
-        axes[row, 2].set_title('③RoMa匹配点', fontsize=10)
-        axes[row, 2].axis('off')
+        axes[row][2].set_title('③RoMa匹配点', fontsize=10)
+        axes[row][2].axis('off')
 
         # 列4: PnP结果
         pnp_path = save_dir / f'{img_name}_pnp.png'
         if pnp_path.exists():
             pnp_img = np.array(Image.open(str(pnp_path)).convert('RGB'))
-            axes[row, 3].imshow(pnp_img)
+            axes[row][3].imshow(pnp_img)
         else:
             pred = r['pred_loc']
             true = r['truePos']
-            axes[row, 3].text(0.5, 0.5,
+            axes[row][3].text(0.5, 0.5,
                              f'PnP求解结果\n\n预测: ({pred["lat"]:.6f}, {pred["lon"]:.6f})\n'
                              f'真值: ({true["lat"]:.6f}, {true["lon"]:.6f})\n\n'
                              f'误差: {error:.2f}m',
@@ -399,11 +401,11 @@ def compose_fig5_3(results, save_dir):
                              bbox=dict(boxstyle='round',
                                       facecolor='lightgreen' if error < 5 else 'lightyellow' if error < 50 else 'lightcoral',
                                       alpha=0.8))
-        axes[row, 3].set_title('④PnP定位结果', fontsize=10)
-        axes[row, 3].axis('off')
+        axes[row][3].set_title('④PnP定位结果', fontsize=10)
+        axes[row][3].axis('off')
 
     for col, title in enumerate(col_titles):
-        axes[0, col].set_title(title, fontsize=11, fontweight='bold')
+        axes[0][col].set_title(title, fontsize=11, fontweight='bold')
 
     plt.suptitle('图5-3 视觉定位算法完整流程可视化', fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()

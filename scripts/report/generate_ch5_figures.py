@@ -45,7 +45,36 @@ fm.fontManager.__init__()
 plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'STSong', 'FangSong', 'KaiTi']
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['axes.unicode_minus'] = False
-plt.rcParams['figure.dpi'] = 150
+plt.rcParams['figure.dpi'] = 300
+
+# 学术风全局字号（参考 AnyVisLoc CVPR 2026 论文图表）
+plt.rcParams['font.size'] = 11
+plt.rcParams['axes.titlesize'] = 13
+plt.rcParams['axes.labelsize'] = 12
+plt.rcParams['xtick.labelsize'] = 10
+plt.rcParams['ytick.labelsize'] = 10
+plt.rcParams['legend.fontsize'] = 10
+
+# 轻量化边框
+plt.rcParams['axes.spines.top'] = False
+plt.rcParams['axes.spines.right'] = False
+plt.rcParams['axes.linewidth'] = 0.6
+
+# 极浅 grid（几乎不可见）
+plt.rcParams['axes.grid'] = True
+plt.rcParams['grid.linewidth'] = 0.3
+plt.rcParams['grid.alpha'] = 0.2
+plt.rcParams['grid.color'] = '#d0d0d0'
+plt.rcParams['axes.axisbelow'] = True
+
+# 学术风配色（参考论文 Figure 4/7 风格）
+COLORS_GLOBAL = {
+    'blue': '#5B9BD5', 'orange': '#ED7D31', 'green': '#70AD47',
+    'red': '#C0504D', 'purple': '#7030A0', 'gray': '#A5A5A5',
+    'teal': '#2E75B6', 'gold': '#BF8F00',
+}
+BAR_COLOR = COLORS_GLOBAL['blue']
+PAIR_3_G = [COLORS_GLOBAL['blue'], COLORS_GLOBAL['orange'], COLORS_GLOBAL['green']]
 
 BASE = Path(__file__).resolve().parent.parent.parent
 CODE = BASE / 'code'
@@ -131,14 +160,14 @@ def generate_fig5_3():
             cy, cx = h // 2, w // 2
             cropped = uav_img[cy-size//2:cy+size//2, cx-size//2:cx+size//2]
             axes[row, 0].imshow(cropped)
-        axes[row, 0].set_title(label, fontsize=10, fontweight='bold')
+        axes[row, 0].set_title(label, fontsize=9)
         axes[row, 0].axis('off')
 
         # ② 检索候选（用文字说明，因为没有保存中间图）
         axes[row, 1].text(0.5, 0.5, f'Top-5候选图块\nIR_order:\n{data["IR_order"][:5]}\n\nPDE:\n{[f"{p:.3f}" for p in data["PDE"][:5]]}',
-                         ha='center', va='center', fontsize=8, family='monospace',
+                         ha='center', va='center', fontsize=9, family='monospace',
                          bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8))
-        axes[row, 1].set_title('②检索Top-5候选', fontsize=10)
+        axes[row, 1].set_title('②检索Top-5候选', fontsize=9)
         axes[row, 1].axis('off')
 
         # ③ 匹配点信息
@@ -146,9 +175,9 @@ def generate_fig5_3():
         n_matches = inliners[0] if inliners else 0
         axes[row, 2].text(0.5, 0.5,
                          f'RoMa密集匹配\n\nTop-1内点数: {n_matches}\nTop-5内点数: {inliners}\n\n匹配方法: RoMa\n分辨率: coarse=280',
-                         ha='center', va='center', fontsize=8, family='monospace',
+                         ha='center', va='center', fontsize=9, family='monospace',
                          bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
-        axes[row, 2].set_title('③RoMa匹配点', fontsize=10)
+        axes[row, 2].set_title('③RoMa匹配点', fontsize=9)
         axes[row, 2].axis('off')
 
         # ④ PnP定位结果
@@ -157,12 +186,12 @@ def generate_fig5_3():
         error = data['pred_error']
         axes[row, 3].text(0.5, 0.5,
                          f'PnP求解结果\n\n预测: ({pred_loc["lat"]:.6f}, {pred_loc["lon"]:.6f})\n真值: ({true_pos["lat"]:.6f}, {true_pos["lon"]:.6f})\n\n定位误差: {error:.2f}m\n耗时: {data["total_time"]:.1f}s',
-                         ha='center', va='center', fontsize=8, family='monospace',
+                         ha='center', va='center', fontsize=9, family='monospace',
                          bbox=dict(boxstyle='round', facecolor='lightgreen' if error < 5 else 'lightyellow' if error < 20 else 'lightcoral', alpha=0.8))
-        axes[row, 3].set_title('④PnP定位结果', fontsize=10)
+        axes[row, 3].set_title('④PnP定位结果', fontsize=9)
         axes[row, 3].axis('off')
 
-    plt.suptitle('图5-3 视觉定位算法完整流程可视化', fontsize=14, fontweight='bold', y=1.02)
+    plt.suptitle('图5-3 视觉定位算法完整流程可视化', fontsize=13, y=1.02)
     plt.tight_layout()
     out_path = OUT / 'fig5_3_pipeline.png'
     plt.savefig(out_path, dpi=150, bbox_inches='tight', pad_inches=0.3)
@@ -188,7 +217,7 @@ def generate_fig5_4():
 
     # 第一行：航空图
     # 误差分布
-    axes[0, 0].hist(df_high['pred_error'].clip(upper=50), bins=30, color='steelblue', edgecolor='black', alpha=0.8)
+    axes[0, 0].hist(df_high['pred_error'].clip(upper=50), bins=30, color=COLORS_GLOBAL['blue'], edgecolor='white', alpha=0.85)
     axes[0, 0].axvline(x=5, color='red', linestyle='--', label='5m阈值')
     axes[0, 0].set_xlabel('定位误差 (m)')
     axes[0, 0].set_ylabel('样本数')
@@ -198,7 +227,7 @@ def generate_fig5_4():
     # A@T曲线
     thresholds = np.arange(0, 51, 1)
     acc_high = [(df_high['pred_error'] < t).mean() * 100 for t in thresholds]
-    axes[0, 1].plot(thresholds, acc_high, 'b-', linewidth=2)
+    axes[0, 1].plot(thresholds, acc_high, color=COLORS_GLOBAL['blue'], linewidth=2.5)
     axes[0, 1].axhline(y=82.3, color='r', linestyle='--', alpha=0.5, label='A@5m=82.3%')
     axes[0, 1].set_xlabel('误差阈值 (m)')
     axes[0, 1].set_ylabel('定位成功率 (%)')
@@ -209,7 +238,7 @@ def generate_fig5_4():
 
     # 分场景
     scenes_high = df_high.groupby('scene')['pred_error'].apply(lambda x: (x < 5).mean() * 100)
-    axes[0, 2].bar(scenes_high.index, scenes_high.values, color=['#2ecc71', '#3498db', '#e74c3c'])
+    axes[0, 2].bar(scenes_high.index, scenes_high.values, color=BAR_COLOR, edgecolor='white')
     axes[0, 2].set_ylabel('A@5m (%)')
     axes[0, 2].set_title('航空图 - 分场景A@5m')
     axes[0, 2].set_ylim(0, 105)
@@ -217,7 +246,7 @@ def generate_fig5_4():
         axes[0, 2].text(i, v + 1, f'{v:.1f}%', ha='center', fontsize=9)
 
     # 第二行：卫星图
-    axes[1, 0].hist(df_low['pred_error'].clip(upper=200), bins=30, color='coral', edgecolor='black', alpha=0.8)
+    axes[1, 0].hist(df_low['pred_error'].clip(upper=200), bins=30, color=COLORS_GLOBAL['orange'], edgecolor='white', alpha=0.85)
     axes[1, 0].axvline(x=5, color='red', linestyle='--', label='5m阈值')
     axes[1, 0].set_xlabel('定位误差 (m)')
     axes[1, 0].set_ylabel('样本数')
@@ -225,7 +254,7 @@ def generate_fig5_4():
     axes[1, 0].legend()
 
     acc_low = [(df_low['pred_error'] < t).mean() * 100 for t in thresholds]
-    axes[1, 1].plot(thresholds, acc_low, 'r-', linewidth=2)
+    axes[1, 1].plot(thresholds, acc_low, color=COLORS_GLOBAL['orange'], linewidth=2.5)
     axes[1, 1].axhline(y=13.6, color='b', linestyle='--', alpha=0.5, label='A@5m=13.6%')
     axes[1, 1].set_xlabel('误差阈值 (m)')
     axes[1, 1].set_ylabel('定位成功率 (%)')
@@ -235,14 +264,14 @@ def generate_fig5_4():
     axes[1, 1].set_ylim(0, 100)
 
     scenes_low = df_low.groupby('scene')['pred_error'].apply(lambda x: (x < 5).mean() * 100)
-    axes[1, 2].bar(scenes_low.index, scenes_low.values, color=['#2ecc71', '#3498db', '#e74c3c'])
+    axes[1, 2].bar(scenes_low.index, scenes_low.values, color=BAR_COLOR, edgecolor='white')
     axes[1, 2].set_ylabel('A@5m (%)')
     axes[1, 2].set_title('卫星图 - 分场景A@5m')
     axes[1, 2].set_ylim(0, 105)
     for i, v in enumerate(scenes_low.values):
         axes[1, 2].text(i, v + 1, f'{v:.1f}%', ha='center', fontsize=9)
 
-    plt.suptitle('图5-4 航空图与卫星图定位效果对比', fontsize=14, fontweight='bold')
+    plt.suptitle('图5-4 航空图与卫星图定位效果对比', fontsize=13)
     plt.tight_layout()
     out_path = OUT / 'fig5_4_high_vs_low.png'
     plt.savefig(out_path, dpi=150, bbox_inches='tight')
@@ -275,14 +304,14 @@ def generate_fig5_5():
             a5m=('pred_error', lambda x: (x < 5).mean() * 100),
             count=('pred_error', 'size')
         )
-        bars = axes[0].bar(range(len(pitch_stats)), pitch_stats['a5m'], color=['#e74c3c', '#f39c12', '#2ecc71'])
+        bars = axes[0].bar(range(len(pitch_stats)), pitch_stats['a5m'], color=BAR_COLOR, edgecolor='white')
         axes[0].set_xticks(range(len(pitch_stats)))
         axes[0].set_xticklabels(pitch_stats.index, fontsize=9)
         axes[0].set_ylabel('A@5m (%)')
         axes[0].set_title('俯仰角分组')
         axes[0].set_ylim(0, 105)
         for i, (v, n) in enumerate(zip(pitch_stats['a5m'], pitch_stats['count'])):
-            axes[0].text(i, v + 1, f'{v:.1f}%\n(n={n})', ha='center', fontsize=8)
+            axes[0].text(i, v + 1, f'{v:.1f}%\n(n={n})', ha='center', fontsize=9)
     else:
         axes[0].text(0.5, 0.5, '无俯仰角数据', ha='center', va='center')
         axes[0].set_title('俯仰角分组')
@@ -296,14 +325,14 @@ def generate_fig5_5():
             a5m=('pred_error', lambda x: (x < 5).mean() * 100),
             count=('pred_error', 'size')
         )
-        bars = axes[1].bar(range(len(alt_stats)), alt_stats['a5m'], color=['#3498db', '#9b59b6', '#1abc9c'])
+        bars = axes[1].bar(range(len(alt_stats)), alt_stats['a5m'], color=BAR_COLOR, edgecolor='white')
         axes[1].set_xticks(range(len(alt_stats)))
         axes[1].set_xticklabels(alt_stats.index, fontsize=9)
         axes[1].set_ylabel('A@5m (%)')
         axes[1].set_title('飞行高度分组')
         axes[1].set_ylim(0, 105)
         for i, (v, n) in enumerate(zip(alt_stats['a5m'], alt_stats['count'])):
-            axes[1].text(i, v + 1, f'{v:.1f}%\n(n={n})', ha='center', fontsize=8)
+            axes[1].text(i, v + 1, f'{v:.1f}%\n(n={n})', ha='center', fontsize=9)
     else:
         axes[1].text(0.5, 0.5, '无高度数据', ha='center', va='center')
         axes[1].set_title('飞行高度分组')
@@ -313,16 +342,16 @@ def generate_fig5_5():
         a5m=('pred_error', lambda x: (x < 5).mean() * 100),
         count=('pred_error', 'size')
     )
-    bars = axes[2].bar(range(len(scene_stats)), scene_stats['a5m'], color=['#2ecc71', '#3498db', '#e74c3c'])
+    bars = axes[2].bar(range(len(scene_stats)), scene_stats['a5m'], color=BAR_COLOR, edgecolor='white')
     axes[2].set_xticks(range(len(scene_stats)))
-    axes[2].set_xticklabels(scene_stats.index, fontsize=8, rotation=15)
+    axes[2].set_xticklabels(scene_stats.index, fontsize=9, rotation=15)
     axes[2].set_ylabel('A@5m (%)')
     axes[2].set_title('测试场景分组')
     axes[2].set_ylim(0, 105)
     for i, (v, n) in enumerate(zip(scene_stats['a5m'], scene_stats['count'])):
-        axes[2].text(i, v + 1, f'{v:.1f}%\n(n={n})', ha='center', fontsize=8)
+        axes[2].text(i, v + 1, f'{v:.1f}%\n(n={n})', ha='center', fontsize=9)
 
-    plt.suptitle('图5-5 不同高度与视角条件下定位效果分析', fontsize=14, fontweight='bold')
+    plt.suptitle('图5-5 不同高度与视角条件下定位效果分析', fontsize=13)
     plt.tight_layout()
     out_path = OUT / 'fig5_5_height_pitch_analysis.png'
     plt.savefig(out_path, dpi=150, bbox_inches='tight')
@@ -348,11 +377,11 @@ def generate_fig5_6():
 
     x = np.arange(len(strategies))
     width = 0.25
-    axes[0].bar(x - width, a5m, width, label='A@5m', color='#2ecc71')
-    axes[0].bar(x, a10m, width, label='A@10m', color='#3498db')
-    axes[0].bar(x + width, a20m, width, label='A@20m', color='#9b59b6')
+    axes[0].bar(x - width, a5m, width, label='A@5m', color=COLORS_GLOBAL['blue'], edgecolor='white')
+    axes[0].bar(x, a10m, width, label='A@10m', color=COLORS_GLOBAL['orange'], edgecolor='white')
+    axes[0].bar(x + width, a20m, width, label='A@20m', color=COLORS_GLOBAL['green'], edgecolor='white')
     axes[0].set_xticks(x)
-    axes[0].set_xticklabels(strategies, fontsize=10)
+    axes[0].set_xticklabels(strategies, fontsize=9)
     axes[0].set_ylabel('定位成功率 (%)')
     axes[0].set_title('定位策略对比')
     axes[0].legend()
@@ -370,11 +399,11 @@ def generate_fig5_6():
     m_a20m = [95.9, 40.9]
 
     x2 = np.arange(len(methods))
-    axes[1].bar(x2 - width, m_a5m, width, label='A@5m', color='#2ecc71')
-    axes[1].bar(x2, m_a10m, width, label='A@10m', color='#3498db')
-    axes[1].bar(x2 + width, m_a20m, width, label='A@20m', color='#9b59b6')
+    axes[1].bar(x2 - width, m_a5m, width, label='A@5m', color=COLORS_GLOBAL['blue'], edgecolor='white')
+    axes[1].bar(x2, m_a10m, width, label='A@10m', color=COLORS_GLOBAL['orange'], edgecolor='white')
+    axes[1].bar(x2 + width, m_a20m, width, label='A@20m', color=COLORS_GLOBAL['green'], edgecolor='white')
     axes[1].set_xticks(x2)
-    axes[1].set_xticklabels(methods, fontsize=10)
+    axes[1].set_xticklabels(methods, fontsize=9)
     axes[1].set_ylabel('定位成功率 (%)')
     axes[1].set_title('匹配方法对比')
     axes[1].legend()
@@ -384,7 +413,7 @@ def generate_fig5_6():
         axes[1].text(i, v10 + 1, f'{v10}', ha='center', fontsize=7)
         axes[1].text(i + width, v20 + 1, f'{v20}', ha='center', fontsize=7)
 
-    plt.suptitle('图5-6 定位策略与匹配方法对比分析', fontsize=14, fontweight='bold')
+    plt.suptitle('图5-6 定位策略与匹配方法对比分析', fontsize=13)
     plt.tight_layout()
     out_path = OUT / 'fig5_6_strategy_matching.png'
     plt.savefig(out_path, dpi=150, bbox_inches='tight')
@@ -400,50 +429,115 @@ def generate_fig5_7():
     """检测框→定位误差传播链路（流程图）"""
     print("生成图5-7: 误差传播链路图...")
 
-    fig, ax = plt.subplots(figsize=(14, 6))
-    ax.set_xlim(0, 14)
-    ax.set_ylim(0, 6)
+    from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+    # 配色
+    BLUE = '#5B9BD5'
+    DARK_BLUE = '#1F4E79'
+    TEAL = '#2E75B6'
+    ORANGE = '#ED7D31'
+    LIGHT_ORANGE = '#F4B183'
+    LIGHT_TEAL = '#BDD7EE'
+
+    fig, ax = plt.subplots(figsize=(16, 7))
+    ax.set_xlim(0, 16)
+    ax.set_ylim(0, 7)
     ax.axis('off')
 
-    # 定义流程节点
-    boxes = [
-        (1, 4.5, '红外/可见光\n目标检测', '#e74c3c'),
-        (3.5, 4.5, '检测框\n中心提取', '#f39c12'),
-        (6, 4.5, '像素→相机\n坐标转换', '#3498db'),
-        (8.5, 4.5, '相机→UTM\n射线投影', '#9b59b6'),
-        (11, 4.5, 'DSM高程\n交会求解', '#2ecc71'),
-        (13, 4.5, '目标地理\n坐标输出', '#1abc9c'),
-        # 误差源
-        (3.5, 2.5, '框中心偏移\n(±px)', '#e8daef'),
-        (6, 2.5, '内参标定\n误差', '#e8daef'),
-        (8.5, 2.5, '位姿估计\n误差', '#e8daef'),
-        (11, 2.5, 'DSM高程\n误差', '#e8daef'),
+    # ============ 主流程（6个节点） ============
+    main_steps = [
+        ('红外/可见光\n目标检测', DARK_BLUE),
+        ('检测框\n中心提取', BLUE),
+        ('像素→相机\n坐标转换', TEAL),
+        ('相机→UTM\n射线投影', BLUE),
+        ('DSM高程\n交会求解', TEAL),
+        ('目标地理\n坐标输出', DARK_BLUE),
     ]
 
-    for x, y, text, color in boxes:
-        rect = plt.Rectangle((x - 0.9, y - 0.5), 1.8, 1, facecolor=color, edgecolor='black', alpha=0.8, linewidth=1.5, zorder=2)
-        ax.add_patch(rect)
-        ax.text(x, y, text, ha='center', va='center', fontsize=8, fontweight='bold', zorder=3)
+    BOX_W = 1.9
+    BOX_H = 0.85
+    MAIN_Y = 5.2
+    START_X = 1.0
+    GAP = (16 - 2 * START_X - BOX_W) / (len(main_steps) - 1)
 
-    # 箭头连接
-    arrow_style = dict(arrowstyle='->', color='black', lw=1.5)
-    for i in range(5):
-        ax.annotate('', xy=(boxes[i+1][0] - 0.9, boxes[i+1][1]), xytext=(boxes[i][0] + 0.9, boxes[i][1]),
-                    arrowprops=arrow_style)
+    def draw_box(ax, x, y, w, h, label, color, fontsize=9, text_color='white'):
+        fancy = FancyBboxPatch((x - w/2, y - h/2), w, h,
+                               boxstyle="round,pad=0.08", facecolor=color,
+                               edgecolor='white', linewidth=2, zorder=3)
+        ax.add_patch(fancy)
+        ax.text(x, y, label, ha='center', va='center', fontsize=fontsize,
+                fontweight='bold', color=text_color, zorder=4)
 
-    # 误差源向下箭头
+    main_positions = []
+    for i, (label, color) in enumerate(main_steps):
+        x = START_X + i * GAP
+        main_positions.append((x, MAIN_Y))
+        draw_box(ax, x, MAIN_Y, BOX_W, BOX_H, label, color)
+
+    # 主流程箭头（灰色细箭头）
+    for i in range(len(main_steps) - 1):
+        x1 = main_positions[i][0] + BOX_W/2
+        x2 = main_positions[i+1][0] - BOX_W/2
+        ax.annotate('', xy=(x2, MAIN_Y), xytext=(x1, MAIN_Y),
+                    arrowprops=dict(arrowstyle='->', color='#666666', lw=1.5,
+                                    mutation_scale=14), zorder=2)
+
+    # ============ 误差源（4个节点） ============
+    error_labels = [
+        '框中心偏移\n(±1~3 px)',
+        '内参标定\n误差',
+        '位姿估计\n误差',
+        'DSM高程\n误差',
+    ]
+
+    ERR_Y = 2.8
+    ERR_W = 1.6
+    ERR_H = 0.75
+
+    error_positions = []
+    for i, label in enumerate(error_labels):
+        x = main_positions[i + 1][0]
+        error_positions.append((x, ERR_Y))
+        draw_box(ax, x, ERR_Y, ERR_W, ERR_H, label, LIGHT_ORANGE, fontsize=9, text_color='#333333')
+
+    # 误差源 → 主流程（橙色虚线箭头）
     for i in range(4):
-        ax.annotate('', xy=(boxes[i+3][0], boxes[i+3][1] - 0.5), xytext=(boxes[i+6][0], boxes[i+6][1] + 0.5),
-                    arrowprops=dict(arrowstyle='->', color='red', lw=1.2, linestyle='dashed'))
+        x = main_positions[i + 1][0]
+        ax.annotate('', xy=(x, MAIN_Y - BOX_H/2 - 0.02),
+                    xytext=(x, ERR_Y + ERR_H/2 + 0.02),
+                    arrowprops=dict(arrowstyle='->', color=ORANGE, lw=1.3,
+                                    linestyle='--', mutation_scale=12), zorder=2)
 
-    # 误差累积标注
-    ax.text(7, 1.0, '误差传播路径：检测框偏移 → 像素误差 → 射线角度误差 → 地面投影误差 → 目标坐标误差',
-            ha='center', va='center', fontsize=9, style='italic',
-            bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
+    # ============ 误差累积框（底部） ============
+    CUM_W = 13.5
+    CUM_H = 0.7
+    CUM_Y = 1.2
+    CUM_X = 8.0
 
-    ax.set_title('图5-7 目标检测→定位误差传播链路', fontsize=14, fontweight='bold', pad=15)
+    fancy_cum = FancyBboxPatch((CUM_X - CUM_W/2, CUM_Y - CUM_H/2), CUM_W, CUM_H,
+                               boxstyle="round,pad=0.1", facecolor='#F5F5F5',
+                               edgecolor='#BBBBBB', linewidth=1.5, zorder=3)
+    ax.add_patch(fancy_cum)
+    ax.text(CUM_X, CUM_Y,
+            '误差传播与累积：框偏移 → 像素误差 → 射线角度误差 → 地面投影误差 → 目标坐标误差',
+            ha='center', va='center', fontsize=9, color='#555555', zorder=4)
+
+    # 误差源 → 累积框的连接线
+    for pos in error_positions:
+        ax.plot([pos[0], pos[0]], [ERR_Y - ERR_H/2, CUM_Y + CUM_H/2],
+                color='#CCCCCC', lw=0.8, zorder=1)
+    # 汇聚到累积框中心
+    ax.plot([error_positions[0][0], CUM_X - CUM_W/2], [CUM_Y, CUM_Y],
+            color='#CCCCCC', lw=0.8, zorder=1)
+    ax.plot([error_positions[-1][0], CUM_X + CUM_W/2], [CUM_Y, CUM_Y],
+            color='#CCCCCC', lw=0.8, zorder=1)
+
+    # ============ 标题 ============
+    ax.set_title('图5-7 目标检测→定位误差传播链路', fontsize=13,
+                 pad=20, color='#333333')
+
     out_path = OUT / 'fig5_7_error_propagation.png'
-    plt.savefig(out_path, dpi=150, bbox_inches='tight', pad_inches=0.3)
+    plt.savefig(out_path, dpi=300, bbox_inches='tight', pad_inches=0.3)
     plt.close()
     print(f"  已保存: {out_path}")
 
@@ -480,7 +574,7 @@ def generate_fig5_8():
             cy, cx = h // 2, w // 2
             cropped = uav_img[cy-size//2:cy+size//2, cx-size//2:cx+size//2]
             axes[0, col].imshow(cropped)
-        axes[0, col].set_title(desc, fontsize=9, fontweight='bold', color='green')
+        axes[0, col].set_title(desc, fontsize=9, color='green')
         axes[0, col].axis('off')
 
     # 第二行：失败案例
@@ -511,14 +605,14 @@ def generate_fig5_8():
                 break
         if not found:
             axes[1, col].text(0.5, 0.5, f'图像未找到\n{img_name}', ha='center', va='center')
-        axes[1, col].set_title(desc, fontsize=9, fontweight='bold', color='red')
+        axes[1, col].set_title(desc, fontsize=9, color='red')
         axes[1, col].axis('off')
 
     # 添加行标题
-    axes[0, 0].set_ylabel('成功案例', fontsize=12, fontweight='bold', color='green', rotation=0, labelpad=60)
-    axes[1, 0].set_ylabel('失败案例', fontsize=12, fontweight='bold', color='red', rotation=0, labelpad=60)
+    axes[0, 0].set_ylabel('成功案例', fontsize=10, color='green', rotation=0, labelpad=60)
+    axes[1, 0].set_ylabel('失败案例', fontsize=10, color='red', rotation=0, labelpad=60)
 
-    plt.suptitle('图5-8 典型定位成功与失败案例', fontsize=14, fontweight='bold')
+    plt.suptitle('图5-8 典型定位成功与失败案例', fontsize=13)
     plt.tight_layout()
     out_path = OUT / 'fig5_8_success_failure.png'
     plt.savefig(out_path, dpi=150, bbox_inches='tight')
@@ -598,17 +692,28 @@ def generate_tables():
 # ============================================================
 
 if __name__ == '__main__':
+    import sys as _sys
     print("=" * 60)
     print("第五章图表生成")
     print("=" * 60)
 
-    generate_fig5_3()
-    generate_fig5_4()
-    generate_fig5_5()
-    generate_fig5_6()
-    generate_fig5_7()
-    generate_fig5_8()
-    generate_tables()
+    # 可通过命令行参数指定只生成某个图，如: python generate_ch5_figures.py fig5_7
+    target = _sys.argv[1] if len(_sys.argv) > 1 else None
+
+    if target is None or target == 'fig5_3':
+        generate_fig5_3()
+    if target is None or target == 'fig5_4':
+        generate_fig5_4()
+    if target is None or target == 'fig5_5':
+        generate_fig5_5()
+    if target is None or target == 'fig5_6':
+        generate_fig5_6()
+    if target is None or target == 'fig5_7':
+        generate_fig5_7()
+    if target is None or target == 'fig5_8':
+        generate_fig5_8()
+    if target is None or target == 'tables':
+        generate_tables()
 
     print("\n" + "=" * 60)
     print("全部完成！")

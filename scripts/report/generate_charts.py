@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-生成实验图表（素材清单 G1-G5）
-使用已有汇总数据，无需逐图CSV
+生成实验图表（素材清单 G1-G5）v2
+v2改动：学术风配色、增大字号、dpi=300
 """
 
 import sys
@@ -16,6 +16,42 @@ import os
 # 设置中文字体
 matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'STSong']
 matplotlib.rcParams['axes.unicode_minus'] = False
+
+# ============================================================
+# 学术风全局样式（参考 AnyVisLoc CVPR 2026 论文图表）
+# ============================================================
+matplotlib.rcParams['font.size'] = 11
+matplotlib.rcParams['axes.titlesize'] = 13
+matplotlib.rcParams['axes.labelsize'] = 12
+matplotlib.rcParams['xtick.labelsize'] = 10
+matplotlib.rcParams['ytick.labelsize'] = 10
+matplotlib.rcParams['legend.fontsize'] = 10
+
+# 轻量化边框：只保留 bottom + left
+matplotlib.rcParams['axes.spines.top'] = False
+matplotlib.rcParams['axes.spines.right'] = False
+matplotlib.rcParams['axes.linewidth'] = 0.6
+
+# 极浅 grid（几乎不可见）
+matplotlib.rcParams['axes.grid'] = True
+matplotlib.rcParams['grid.linewidth'] = 0.3
+matplotlib.rcParams['grid.alpha'] = 0.2
+matplotlib.rcParams['grid.color'] = '#d0d0d0'
+matplotlib.rcParams['axes.axisbelow'] = True
+
+# 学术风配色（参考论文 Figure 4/7 风格）
+COLORS = {
+    'blue': '#5B9BD5',
+    'orange': '#ED7D31',
+    'green': '#70AD47',
+    'red': '#C0504D',
+    'purple': '#7030A0',
+    'gray': '#A5A5A5',
+    'teal': '#2E75B6',
+    'gold': '#BF8F00',
+}
+BAR_COLOR = COLORS['blue']
+PAIR_3 = [COLORS['blue'], COLORS['orange'], COLORS['green']]
 
 OUTPUT_DIR = '素材/截图'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -78,19 +114,18 @@ def plot_strategy_comparison():
     x = np.arange(len(strategies))
     width = 0.25
 
-    bars1 = ax.bar(x - width, a5m, width, label='A@5m', color='#2ecc71')
-    bars2 = ax.bar(x, a10m, width, label='A@10m', color='#3498db')
-    bars3 = ax.bar(x + width, a20m, width, label='A@20m', color='#e74c3c')
+    bars1 = ax.bar(x - width, a5m, width, label='A@5m', color=COLORS['blue'], edgecolor='white')
+    bars2 = ax.bar(x, a10m, width, label='A@10m', color=COLORS['orange'], edgecolor='white')
+    bars3 = ax.bar(x + width, a20m, width, label='A@20m', color=COLORS['green'], edgecolor='white')
 
-    ax.set_ylabel('定位精度 (%)', fontsize=12)
-    ax.set_title('不同定位策略的精度对比', fontsize=14, fontweight='bold')
+    ax.set_ylabel('定位精度 (%)')
+    ax.set_title('不同定位策略的精度对比')
     ax.set_xticks(x)
-    ax.set_xticklabels(strategies, fontsize=11)
-    ax.legend(fontsize=11)
-    ax.set_ylim(0, 105)
-    ax.grid(axis='y', alpha=0.3)
+    ax.set_xticklabels(strategies)
+    ax.legend()
+    ax.set_ylim(0, 110)
+    ax.grid(True)
 
-    # 添加数值标签
     for bars in [bars1, bars2, bars3]:
         for bar in bars:
             height = bar.get_height()
@@ -100,7 +135,7 @@ def plot_strategy_comparison():
                        ha='center', va='bottom', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/strategy_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(f'{OUTPUT_DIR}/strategy_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
     print(f'  保存: {OUTPUT_DIR}/strategy_comparison.png')
 
@@ -116,26 +151,27 @@ def plot_pitch_impact():
     counts = [pitch_data[p]['count'] for p in pitches]
 
     # 左图: A@5m 柱状图
-    colors = ['#e74c3c', '#f39c12', '#2ecc71']
-    bars = ax1.bar(pitches, a5m, color=colors, edgecolor='black', linewidth=0.5)
-    ax1.set_ylabel('A@5m (%)', fontsize=12)
-    ax1.set_title('俯仰角对定位精度的影响', fontsize=14, fontweight='bold')
-    ax1.set_ylim(0, 100)
-    ax1.grid(axis='y', alpha=0.3)
+    bars = ax1.bar(pitches, a5m, color=BAR_COLOR, edgecolor='white', linewidth=0.8)
+    ax1.set_ylabel('A@5m (%)')
+    ax1.set_title('俯仰角对定位精度的影响')
+    ax1.set_ylim(0, 110)
+    ax1.grid(True)
 
     for bar, count in zip(bars, counts):
         height = bar.get_height()
         ax1.annotate(f'{height:.1f}%\n(n={count})',
                     xy=(bar.get_x() + bar.get_width() / 2, height),
                     xytext=(0, 5), textcoords="offset points",
-                    ha='center', va='bottom', fontsize=10)
+                    ha='center', va='bottom', fontsize=9)
 
     # 右图: 样本分布饼图
-    ax2.pie(counts, labels=pitches, autopct='%1.1f%%', colors=colors, startangle=90)
-    ax2.set_title('俯仰角样本分布', fontsize=14, fontweight='bold')
+    pie_colors = [COLORS['blue'], COLORS['orange'], COLORS['green']]
+    ax2.pie(counts, labels=pitches, autopct='%1.1f%%', colors=pie_colors, startangle=90,
+            textprops={'fontsize': 9})
+    ax2.set_title('俯仰角样本分布')
 
     plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/pitch_impact.png', dpi=150, bbox_inches='tight')
+    plt.savefig(f'{OUTPUT_DIR}/pitch_impact.png', dpi=300, bbox_inches='tight')
     plt.close()
     print(f'  保存: {OUTPUT_DIR}/pitch_impact.png')
 
@@ -152,36 +188,35 @@ def plot_scene_comparison():
     mean_err = [scene_data[s]['mean_error'] for s in scenes]
 
     # 左图: A@5m 柱状图
-    colors = ['#2ecc71', '#3498db', '#e74c3c']
-    bars = ax1.bar(scene_labels, a5m, color=colors, edgecolor='black', linewidth=0.5)
-    ax1.set_ylabel('A@5m (%)', fontsize=12)
-    ax1.set_title('分场景定位精度 (航空图)', fontsize=14, fontweight='bold')
+    bars = ax1.bar(scene_labels, a5m, color=BAR_COLOR, edgecolor='white', linewidth=0.8)
+    ax1.set_ylabel('A@5m (%)')
+    ax1.set_title('分场景定位精度 (航空图)')
     ax1.set_ylim(0, 110)
-    ax1.grid(axis='y', alpha=0.3)
+    ax1.grid(True)
 
     for bar in bars:
         height = bar.get_height()
         ax1.annotate(f'{height:.1f}%',
                     xy=(bar.get_x() + bar.get_width() / 2, height),
                     xytext=(0, 5), textcoords="offset points",
-                    ha='center', va='bottom', fontsize=11)
+                    ha='center', va='bottom', fontsize=9)
 
     # 右图: 平均误差柱状图 (对数刻度)
-    bars2 = ax2.bar(scene_labels, mean_err, color=colors, edgecolor='black', linewidth=0.5)
-    ax2.set_ylabel('平均误差 (m)', fontsize=12)
-    ax2.set_title('分场景平均定位误差', fontsize=14, fontweight='bold')
+    bars2 = ax2.bar(scene_labels, mean_err, color=BAR_COLOR, edgecolor='white', linewidth=0.8)
+    ax2.set_ylabel('平均误差 (m)')
+    ax2.set_title('分场景平均定位误差')
     ax2.set_yscale('log')
-    ax2.grid(axis='y', alpha=0.3)
+    ax2.grid(True)
 
     for bar in bars2:
         height = bar.get_height()
         ax2.annotate(f'{height:.1f}m',
                     xy=(bar.get_x() + bar.get_width() / 2, height),
                     xytext=(0, 5), textcoords="offset points",
-                    ha='center', va='bottom', fontsize=11)
+                    ha='center', va='bottom', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/scene_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(f'{OUTPUT_DIR}/scene_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
     print(f'  保存: {OUTPUT_DIR}/scene_comparison.png')
 
@@ -197,35 +232,35 @@ def plot_matching_comparison():
     mean_err = [matching_data[m]['mean'] for m in methods]
 
     # 左图: A@5m
-    colors = ['#2ecc71', '#e74c3c']
-    bars = ax1.bar(methods, a5m, color=colors, edgecolor='black', linewidth=0.5)
-    ax1.set_ylabel('A@5m (%)', fontsize=12)
-    ax1.set_title('匹配方法精度对比', fontsize=14, fontweight='bold')
+    match_colors = [COLORS['blue'], COLORS['teal']]
+    bars = ax1.bar(methods, a5m, color=match_colors, edgecolor='white', linewidth=0.8)
+    ax1.set_ylabel('A@5m (%)')
+    ax1.set_title('匹配方法精度对比')
     ax1.set_ylim(0, 100)
-    ax1.grid(axis='y', alpha=0.3)
+    ax1.grid(True)
 
     for bar in bars:
         height = bar.get_height()
         ax1.annotate(f'{height:.1f}%',
                     xy=(bar.get_x() + bar.get_width() / 2, height),
                     xytext=(0, 5), textcoords="offset points",
-                    ha='center', va='bottom', fontsize=12)
+                    ha='center', va='bottom', fontsize=9)
 
     # 右图: 平均误差
-    bars2 = ax2.bar(methods, mean_err, color=colors, edgecolor='black', linewidth=0.5)
-    ax2.set_ylabel('平均误差 (m)', fontsize=12)
-    ax2.set_title('匹配方法平均误差', fontsize=14, fontweight='bold')
-    ax2.grid(axis='y', alpha=0.3)
+    bars2 = ax2.bar(methods, mean_err, color=[COLORS['blue'], COLORS['teal']], edgecolor='white', linewidth=0.8)
+    ax2.set_ylabel('平均误差 (m)')
+    ax2.set_title('匹配方法平均误差')
+    ax2.grid(True)
 
     for bar in bars2:
         height = bar.get_height()
         ax2.annotate(f'{height:.1f}m',
                     xy=(bar.get_x() + bar.get_width() / 2, height),
                     xytext=(0, 5), textcoords="offset points",
-                    ha='center', va='bottom', fontsize=12)
+                    ha='center', va='bottom', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/matching_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(f'{OUTPUT_DIR}/matching_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
     print(f'  保存: {OUTPUT_DIR}/matching_comparison.png')
 
@@ -243,16 +278,16 @@ def plot_ref_map_comparison():
     x = np.arange(len(maps))
     width = 0.35
 
-    bars1 = ax.bar(x - width/2, a5m_ours, width, label='复现结果', color='#3498db')
-    bars2 = ax.bar(x + width/2, a5m_paper, width, label='论文结果', color='#e74c3c')
+    bars1 = ax.bar(x - width/2, a5m_ours, width, label='复现结果', color=COLORS['blue'], edgecolor='white')
+    bars2 = ax.bar(x + width/2, a5m_paper, width, label='论文结果', color=COLORS['teal'], edgecolor='white')
 
-    ax.set_ylabel('A@5m (%)', fontsize=12)
-    ax.set_title('不同参考地图的定位精度对比', fontsize=14, fontweight='bold')
+    ax.set_ylabel('A@5m (%)')
+    ax.set_title('不同参考地图的定位精度对比')
     ax.set_xticks(x)
-    ax.set_xticklabels(maps, fontsize=12)
-    ax.legend(fontsize=11)
+    ax.set_xticklabels(maps)
+    ax.legend()
     ax.set_ylim(0, 100)
-    ax.grid(axis='y', alpha=0.3)
+    ax.grid(True)
 
     for bars in [bars1, bars2]:
         for bar in bars:
@@ -260,10 +295,10 @@ def plot_ref_map_comparison():
             ax.annotate(f'{height:.1f}%',
                        xy=(bar.get_x() + bar.get_width() / 2, height),
                        xytext=(0, 5), textcoords="offset points",
-                       ha='center', va='bottom', fontsize=11)
+                       ha='center', va='bottom', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/ref_map_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(f'{OUTPUT_DIR}/ref_map_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
     print(f'  保存: {OUTPUT_DIR}/ref_map_comparison.png')
 
@@ -283,18 +318,18 @@ def plot_overall_comparison():
     x = np.arange(len(metrics))
     width = 0.2
 
-    bars1 = ax.bar(x - 1.5*width, ours_aerial, width, label='复现-航空图', color='#2ecc71')
-    bars2 = ax.bar(x - 0.5*width, paper_aerial, width, label='论文-航空图', color='#27ae60')
-    bars3 = ax.bar(x + 0.5*width, ours_satellite, width, label='复现-卫星图', color='#3498db')
-    bars4 = ax.bar(x + 1.5*width, paper_satellite, width, label='论文-卫星图', color='#2980b9')
+    bars1 = ax.bar(x - 1.5*width, ours_aerial, width, label='复现-航空图', color=COLORS['blue'], edgecolor='white')
+    bars2 = ax.bar(x - 0.5*width, paper_aerial, width, label='论文-航空图', color=COLORS['orange'], edgecolor='white')
+    bars3 = ax.bar(x + 0.5*width, ours_satellite, width, label='复现-卫星图', color=COLORS['green'], edgecolor='white')
+    bars4 = ax.bar(x + 1.5*width, paper_satellite, width, label='论文-卫星图', color=COLORS['teal'], edgecolor='white')
 
-    ax.set_ylabel('定位精度 (%)', fontsize=12)
-    ax.set_title('复现结果 vs 论文结果', fontsize=14, fontweight='bold')
+    ax.set_ylabel('定位精度 (%)')
+    ax.set_title('复现结果 vs 论文结果')
     ax.set_xticks(x)
-    ax.set_xticklabels(metrics, fontsize=12)
-    ax.legend(fontsize=10, ncol=2)
-    ax.set_ylim(0, 105)
-    ax.grid(axis='y', alpha=0.3)
+    ax.set_xticklabels(metrics)
+    ax.legend(ncol=2)
+    ax.set_ylim(0, 110)
+    ax.grid(True)
 
     for bars in [bars1, bars2, bars3, bars4]:
         for bar in bars:
@@ -302,10 +337,10 @@ def plot_overall_comparison():
             ax.annotate(f'{height:.1f}',
                        xy=(bar.get_x() + bar.get_width() / 2, height),
                        xytext=(0, 3), textcoords="offset points",
-                       ha='center', va='bottom', fontsize=8)
+                       ha='center', va='bottom', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/overall_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(f'{OUTPUT_DIR}/overall_comparison.png', dpi=300, bbox_inches='tight')
     plt.close()
     print(f'  保存: {OUTPUT_DIR}/overall_comparison.png')
 

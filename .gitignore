@@ -46,6 +46,7 @@ code/Output/
 Thumbs.db
 Desktop.ini
 .DS_Store
+tmp/
 
 # ==================== 日志和缓存 ====================
 *.log
