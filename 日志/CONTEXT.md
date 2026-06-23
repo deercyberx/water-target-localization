@@ -374,3 +374,78 @@ code/
 | analyze_tables.py | 根目录 | 表格结构分析 |
 | check_format.py | 根目录 | 格式检查 |
 | scripts/report/ | 60+ 脚本 | dump/fix/generate/verify全链路 |
+
+## GitHub仓库状态
+
+### 仓库信息
+
+- **仓库地址**: https://github.com/deercyberx/water-target-localization.git
+- **本地分支**: master
+- **远程分支**: origin/master
+- **状态**: 已同步
+
+### 文件统计（2026-06-23清理后）
+
+- **远程文件**: 185 个
+- **删除文件**: 75 个
+- **保留文件**: 185 个
+
+### 目录结构
+
+```
+water-target-localization/
+├── .gitignore
+├── README.md
+├── code/                    # 论文代码（83个文件）
+│   ├── Baseline.py
+│   ├── utils.py
+│   ├── config.yaml
+│   ├── requirements.txt
+│   ├── Retrieval_Models/    # 检索模型（CAMP）
+│   ├── Matching_Models/     # 匹配模型（RoMa/SIFT）
+│   ├── Regions_params/      # 区域参数
+│   └── Data/                # 数据集元数据和姿态文件
+├── 素材/                    # 实验数据和图表（34个文件）
+│   ├── 实验数据/            # 12个CSV/JSON/MD文件
+│   └── 截图/                # 18个图表文件
+├── 5all素材/                # 第五章素材汇总（38个文件）
+│   ├── 代码源文件/          # 5个Python文件
+│   ├── 典型案例/            # 4个文件
+│   ├── 报告/                # 5个文件
+│   ├── 报告生成脚本/        # 12个Python文件
+│   ├── 数据源/              # 1个JSON文件
+│   ├── 检查报告/            # 1个文件
+│   ├── 正文章节/            # 5个文件
+│   └── 配置/                # 3个文件
+├── scripts/                 # 报告生成脚本（24个文件）
+│   ├── data/                # 2个数据处理脚本
+│   └── report/              # 22个报告生成脚本
+├── 日志/                    # 项目日志（5个文件）
+│   ├── ACTIVE.md
+│   ├── CONTEXT.md
+│   ├── LEARNINGS.md
+│   ├── LOG.md
+│   └── TASKS.md
+├── paper/                   # 论文资料（4个文件）
+│   ├── 论文PDF
+│   ├── notes.md
+│   ├── paper_markdown.md
+│   └── gemini_reference_ch1_4.md
+├── reports/                 # 报告文件（2个文件）
+│   ├── 可选补充内容S1-S25.md
+│   └── 素材清单.md
+├── results/                 # 结果目录（1个文件）
+│   └── .gitkeep
+└── experiments/             # 实验脚本（1个文件）
+    └── run_experiment.ps1
+```
+
+### 清理记录（2026-06-23）
+
+- 删除临时文件: 2个（tmp/目录）
+- 删除重复文件: 46个（5all素材/图表/、5all素材/实验数据/、5all素材/参考文献/、5all素材/参考文献补充/）
+- 删除过时文件: 12个（参考素材/目录）
+- 删除重复脚本: 6个（5all素材/脚本/）
+- 删除重复素材: 9个（code/素材/目录）
+- 总计删除: 75个文件
+- 最终文件数: 185个

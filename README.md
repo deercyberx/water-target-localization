@@ -24,37 +24,51 @@ UAV图像 → 图像检索（CAMP）→ 图像匹配（RoMa）→ PnP求解（P3
 ## 目录结构
 
 ```
-水上目标定位/
-├── 日志/                          # 项目状态日志
-│   ├── ACTIVE.md                  # 当前任务焦点
-│   ├── TASKS.md                   # 任务进度
-│   ├── LOG.md                     # 活动记录
-│   ├── CONTEXT.md                 # 项目核心信息
-│   └── LEARNINGS.md               # 可复用经验
-├── reports/                       # 报告文件
-│   ├── 水面目标精准定位技术报告_终稿_v5.docx
-│   ├── 水面目标精准定位技术报告第五章提纲_终稿.docx
-│   ├── 第五章_实验验证与结果分析_poi-tl_v2.docx
+water-target-localization/
+├── .gitignore
+├── README.md
+├── code/                    # 论文代码（83个文件）
+│   ├── Baseline.py
+│   ├── utils.py
+│   ├── config.yaml
+│   ├── requirements.txt
+│   ├── Retrieval_Models/    # 检索模型（CAMP）
+│   ├── Matching_Models/     # 匹配模型（RoMa/SIFT）
+│   ├── Regions_params/      # 区域参数
+│   └── Data/                # 数据集元数据和姿态文件
+├── 素材/                    # 实验数据和图表（34个文件）
+│   ├── 实验数据/            # 12个CSV/JSON/MD文件
+│   └── 截图/                # 18个图表文件
+├── 5all素材/                # 第五章素材汇总（38个文件）
+│   ├── 代码源文件/          # 5个Python文件
+│   ├── 典型案例/            # 4个文件
+│   ├── 报告/                # 5个文件
+│   ├── 报告生成脚本/        # 12个Python文件
+│   ├── 数据源/              # 1个JSON文件
+│   ├── 检查报告/            # 1个文件
+│   ├── 正文章节/            # 5个文件
+│   └── 配置/                # 3个文件
+├── scripts/                 # 报告生成脚本（24个文件）
+│   ├── data/                # 2个数据处理脚本
+│   └── report/              # 22个报告生成脚本
+├── 日志/                    # 项目日志（5个文件）
+│   ├── ACTIVE.md
+│   ├── CONTEXT.md
+│   ├── LEARNINGS.md
+│   ├── LOG.md
+│   └── TASKS.md
+├── paper/                   # 论文资料（4个文件）
+│   ├── 论文PDF
+│   ├── notes.md
+│   ├── paper_markdown.md
+│   └── gemini_reference_ch1_4.md
+├── reports/                 # 报告文件（2个文件）
+│   ├── 可选补充内容S1-S25.md
 │   └── 素材清单.md
-├── paper/                         # 论文和笔记
-│   ├── *.pdf                      # 原始论文
-│   ├── notes.md                   # 论文笔记（359行）
-│   └── paper_markdown.md          # 论文Markdown版
-├── 素材/                          # 实验数据和图表
-│   ├── 实验数据/                  # CSV实验结果
-│   └── 截图/                      # 图表素材
-├── scripts/                       # 生成脚本
-│   ├── data/                      # 数据处理脚本
-│   └── report/                    # 报告生成脚本
-├── code/                          # 论文代码（需额外下载权重和数据集）
-│   ├── Baseline.py                # 主入口
-│   ├── config.yaml                # 配置文件
-│   ├── utils.py                   # 核心工具函数
-│   ├── Retrieval_Models/          # 检索模型
-│   ├── Matching_Models/           # 匹配模型
-│   └── Regions_params/            # 区域参数
-├── 参考素材/                       # 参考资料
-└── .gitignore                     # Git忽略规则
+├── results/                 # 结果目录（1个文件）
+│   └── .gitkeep
+└── experiments/             # 实验脚本（1个文件）
+    └── run_experiment.ps1
 ```
 
 ---
@@ -177,15 +191,15 @@ tail -50 日志/LOG.md
 
 ### 文件说明
 
-#### Git仓库已包含（177个文件）
+#### Git仓库已包含（185个文件）
 
-- ✅ 项目代码（排除权重和数据集）
+- ✅ 项目代码（83个文件，排除权重和数据集）
 - ✅ 日志系统（5个文件）
-- ✅ 第五章初稿和素材
-- ✅ 实验数据CSV（7个文件）
-- ✅ 图表素材（14张小图）
-- ✅ 报告生成脚本（20个）
-- ✅ 论文和笔记
+- ✅ 第五章素材汇总（38个文件）
+- ✅ 实验数据和图表（34个文件）
+- ✅ 报告生成脚本（24个文件）
+- ✅ 论文和笔记（4个文件）
+- ✅ 报告文件（2个文件）
 - ✅ README文档
 - ✅ 数据集元数据和姿态文件
 
