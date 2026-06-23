@@ -117,6 +117,25 @@
 2. **状态不一致**: ACTIVE.md和TASKS.md需保持一致
 3. **日期格式**: LOG.md使用YYYY-MM-DD格式
 4. **重复内容**: 避免在多个文件中重复记录同一信息
+5. **参考素材/与日志/重复**: 参考素材/是早期版本，信息过时，以日志/为准
+6. **venv路径**: 实际在项目根目录 .venv/，不是 code/.venv/
+
+## 项目文件管理经验
+
+### 文件归类
+
+1. **日志系统**: `日志/` 目录 5 个文件是权威状态来源
+2. **参考素材**: `参考素材/` 是早期副本，信息可能过时，以 `日志/` 为准
+3. **报告版本**: reports/ 下有多个版本，最新是 poi-tl_v5
+4. **脚本清理**: `scripts/report/` 有 60+ 一次性脚本，完成任务后应清理
+5. **临时文件**: 根目录的 table_*.txt 等是分析中间产物，可归档
+
+### 报告生成工具链
+
+1. **poi-tl**: Java 库，通过 Python 调用，用于 Word 模板填充
+2. **python-docx**: 直接操作 docx，用于格式修复
+3. **analyze_tables.py**: 表格结构分析，识别格式问题
+4. **scripts/report/**: dump（提取）→ fix（修复）→ generate（生成）→ verify（验证）全链路
 
 ## 工具使用经验
 
@@ -147,3 +166,48 @@
 2. **分桶统计**: `pd.cut(df['col'], bins=[...], labels=[...])`
 3. **聚合统计**: `df.groupby('col').agg({'col2': ['mean', 'count']})`
 4. **条件筛选**: `df[df['col'] > threshold]`
+
+## Nature Skills 使用经验
+
+### 技能概览
+
+1. **nature-polishing**: 学术文本润色/重构/翻译为Nature风格英文
+2. **nature-figure**: 面向Nature级期刊的投稿级科研图工作流（Python/R）
+3. **nature-writing**: 起草Nature风格手稿章节
+4. **nature-reviewer**: 模拟Nature审稿人视角评审
+5. **nature-response**: 起草/审查逐点回复审稿人的response letter
+6. **nature-reader**: 论文PDF→中英文对照Markdown
+7. **nature-paper2ppt**: 论文→中文PPTX文献汇报
+8. **nature-citation**: 检索Nature/CNS系列支撑文献
+
+### nature-polishing 使用
+
+1. **轴值检测**: paper_type（research/methods/hypothesis/algorithmic/review）、section（abstract/intro/results/discussion/conclusion/title/methods）、language（en/zh-to-en）、journal（nature/nat-comms/generic）
+2. **中文润色**: 保持中文，参考Nature写作原则优化表达
+3. **二次润色**: 优化句式（10-30词）、段落聚焦（一段一意）、精确对冲
+4. **术语一致性**: 建立术语表，确保全文统一
+
+### nature-reviewer 使用
+
+1. **输出格式**: 3份审稿报告 + 1份综合意见
+2. **评审轴**: originality, scientific importance, interdisciplinary readership, technical soundness, readability
+3. **审稿人差异**: Reviewer 1关注技术细节，Reviewer 2关注原创性和重要性，Reviewer 3关注跨学科吸引力和可读性
+
+### nature-response 使用
+
+1. **回复策略**: 接受技术性建议，对评价性意见予以确认
+2. **修改映射**: 每个审稿意见映射到具体修改位置
+3. **缺失标记**: 需要作者补充的内容标记为AUTHOR_INPUT_NEEDED
+
+### python-docx 段落替换
+
+1. **保留格式**: 保存第一个run的格式，清除所有run的文本，在第一个run中设置新文本
+2. **段落匹配**: 按节匹配，处理段落数量不匹配的情况
+3. **表格保留**: 只替换正文段落，不修改表格内容
+4. **公式处理**: 公式以纯文本形式嵌入段落，使用斜体和Cambria Math字体
+
+### 审核流程
+
+1. **子代理审核**: 启动独立子代理检查修改内容
+2. **6项检查**: 公式显示、样本选择标准、技术细节、段落完整性、表格完整性、格式保留
+3. **改进建议**: 子代理提出可选改进，用户确认后执行

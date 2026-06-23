@@ -124,3 +124,85 @@
   - LOG.md：追加今天活动记录
   - CONTEXT.md：更新报告文件位置和素材状态
   - LEARNINGS.md：添加初稿撰写经验
+
+## 2026-06-23
+
+- 全面文件归类和日志更新：
+  - 扫描项目全部文件（排除 .venv/.git/__pycache__），约 200+ 有效文件
+  - 归类为 10 大类：日志/论文/代码/报告/脚本/实验数据/图表素材/参考素材/模板/临时文件
+  - 发现 `参考素材/` 是早期日志副本，信息过时（GPU 写 RTX 3090 实际 RTX 3080，数据集写"待下载"实际已下载）
+  - 发现 `scripts/report/` 有 60+ 一次性脚本，可清理
+  - 发现根目录有多个临时分析文件（table_*.txt），可归档
+  - 发现 .venv 在项目根目录（非 code/.venv/）
+  - 第五章已迭代到 v5 版本（poi-tl 格式化 + 表格优化）
+- 更新 ACTIVE.md：Round 3 → Round 4，当前聚焦表格优化
+- 更新 TASKS.md：新增 v5 迭代为已完成，新增清理/归档待办
+- 更新 CONTEXT.md：修正代码结构、报告文件位置、环境配置（venv路径）
+- 更新 LOG.md：追加今天活动记录
+
+- 根目录文件整理：
+  - 创建 tmp/ 目录，归档 6 个临时文件（会话记录、字体测试图、4个 table_*.txt/json）
+  - 移动 analyze_tables.py → tmp/（未 tracked 的中间产物）
+  - 移动 check_format.py → scripts/report/check_format_comprehensive.py（与已有 check_format.py 内容不同，重命名避免冲突）
+  - 移动 提示词 → 参考素材/
+  - 更新 .gitignore 添加 tmp/
+  - 根目录现在只剩 .gitignore + README.md
+
+- 第五章版本更新：确认 v1 为最新版（非之前记录的 v5）
+  - 更新表格数据
+  - 补充素材到 5all素材/
+  - 最新版: reports/第五章_实验验证与结果分析_v1.docx
+
+- Nature Skills 安装与使用：
+  - 克隆 nature-skills 仓库到 clone库/
+  - 安装 8 个技能到 .claude/skills/（nature-reader/paper2ppt/polishing/figure/writing/citation/reviewer/response）
+  - 阅读并理解各技能功能（nature-polishing: 学术文本润色；nature-figure: 投稿级科研图）
+
+- 第五章 Nature 风格润色（使用 nature-polishing 技能）：
+  - 轴值检测：paper_type=research, section=results+conclusion, language=zh-to-en, journal=generic
+  - 一次润色：中文保留，优化段落逻辑、句式、术语一致性
+  - 二次润色：优化句式结构（10-30词）、段落聚焦（一段一意）、精确对冲
+  - 输出完整润色版本（中文版）
+
+- 对齐检查（与提纲 v1 逐节对比）：
+  - 11节全部对齐（标题、图表编号、写作口径）
+  - 发现3处细节差异：
+    - 5.3 位姿求解器：提纲写EPnP+RANSAC，实际P3P+RANSAC（润色正确）
+    - 5.5 篇幅：提纲建议2-3页，润色约1.5页（合理）
+    - 5.9 检测框类型：未逐一命名（已修正）
+  - 确认数据一致性：SIFT A@5m=31.2%（PKL）、俯仰角70-90°=164张（PKL）
+
+- 修正 5.9 节检测框类型描述：
+  - 明确列出四类：人工标注框、模型预测框、扰动框、多目标框
+  - 与表5-11完全对齐
+
+- 生成 v2_polished.docx：
+  - 使用 python-docx 替换正文段落
+  - 保留原文档的12个表格、图片、格式、字体
+  - 输出文件：reports/第五章_实验验证与结果分析_v2_polished.docx
+
+- Nature Reviewer 评审（使用 nature-reviewer 技能）：
+  - 生成3份审稿报告 + 1份综合意见
+  - 评审轴：originality, scientific importance, interdisciplinary readership, technical soundness, readability
+  - 主要问题：公式显示、样本选择标准、图表引用
+  - 总体评价：技术扎实，多维度分析全面，任务边界明确
+
+- Nature Response 回复（使用 nature-response 技能）：
+  - 制定回复策略，修复3个主要问题：
+    1. 公式显示问题：公式整合到段落中，完整显示
+    2. 样本选择标准：补充到5.5节最后一个段落
+    3. 技术细节解释：增加PDM@K、重投影误差、内点数量、推理时间的解释
+  - 生成修改后的文档
+
+- 子代理审核：
+  - 启动独立子代理审核修改内容
+  - 6项检查全部通过：公式显示、样本选择标准、技术细节、段落完整性、表格完整性、格式保留
+  - 发现2个可选改进：公式排版格式、样本选择标准位置
+  - 完成可选改进
+
+- 最终状态：
+  - 文件：reports/第五章_实验验证与结果分析_v2_polished.docx
+  - 段落数量：75
+  - 表格数量：12（全部保留）
+  - 修改内容：公式显示、样本选择标准、技术细节解释
+  - 审核状态：通过

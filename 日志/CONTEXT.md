@@ -89,13 +89,16 @@ code/
 │       ├── get_CAMP.py         # 模型初始化
 │       ├── checkpoints/        # 权重目录
 │       └── sample4geo/         # 模型实现
-└── Matching_Models/         # 图像匹配模型
-    ├── RoMa/                # RoMa匹配模型
-    │   ├── demo/Roma_match.py  # 匹配接口
-    │   ├── roma/               # 模型实现
-    │   └── ckpt/               # 权重目录
-    └── SIFT/                # SIFT匹配方法
-        └── SIFT_match.py      # 匹配实现
+├── Matching_Models/         # 图像匹配模型
+│   ├── RoMa/                # RoMa匹配模型
+│   │   ├── demo/Roma_match.py  # 匹配接口
+│   │   ├── roma/               # 模型实现
+│   │   └── ckpt/               # 权重目录
+│   └── SIFT/                # SIFT匹配方法
+│       └── SIFT_match.py      # 匹配实现
+└── 素材/                    # code内实验数据副本
+    ├── 实验数据/            # CSV结果
+    └── 截图/                # 图表
 ```
 
 ## 实验流程
@@ -203,6 +206,7 @@ code/
 | RAM | 128GB |
 | 核心依赖 | OpenCV, timm, pyproj, transformers, kornia, einops |
 | 是否需要训练 | ❌ 不需要，纯推理代码 |
+| 虚拟环境 | .venv/（项目根目录，非 code/.venv/） |
 
 ## 实验结果汇总
 
@@ -329,7 +333,7 @@ code/
 | 第二章 | 水面目标精准定位问题分析 | 论文 + 实验 + Gemini 参考 | ✅ 齐全 |
 | 第三章 | 视觉定位总体框架 | 代码分析 + Gemini 参考 | ✅ 齐全 |
 | 第四章 | 地理坐标解算方法 | 代码分析 + Gemini 参考 | ✅ 齐全 |
-| 第五章 | 实验验证与结果分析 | 我们的实验结果 | ✅ 初稿完成 |
+| 第五章 | 实验验证与结果分析 | 我们的实验结果 | ✅ 润色完成（v2_polished） |
 | 第六章 | 总结与展望 | 实验结论 | ⚠️ 待撰写 |
 
 ### 报告文件位置
@@ -338,19 +342,35 @@ code/
 - **论文**: paper/Ye_Exploring_the_best_way_for_UAV_visual_localization_under_Low-altitude_CVPRF_2026_paper.pdf
 - **论文笔记**: paper/notes.md
 - **论文 Markdown**: paper/paper_markdown.md
-- **第五章初稿**: reports/第五章_实验验证与结果分析_poi-tl_v2.docx
-- **第五章提纲**: reports/水面目标精准定位技术报告第五章提纲_终稿.docx
+- **第五章最新版**: reports/第五章_实验验证与结果分析_v2_polished.docx
+- **第五章润色版**: reports/第五章_实验验证与结果分析_v2_polished.docx（Nature风格润色+审稿意见修改）
+- **第五章历史版本**:
+  - reports/第五章_实验验证与结果分析_v1.docx
+  - reports/第五章_实验验证与结果分析_poi-tl_v5 copy.docx
+  - reports/第五章_实验验证与结果分析_poi-tl_v2.docx（初稿）
+  - reports/第五章_实验验证与结果分析.docx
+- **第五章提纲**: reports/第五章_提纲_v1.docx / v2.docx / 源文件.docx
+- **技术报告**: reports/水面目标精准定位技术报告.docx / _v5.docx
 - **素材清单**: reports/素材清单.md
 - **表格数据**: 素材/实验数据/第五章表格数据.md
 - **图片素材**: 素材/截图/fig5_*.png（7张）
-- **实验数据**: 素材/实验数据/*.csv（7个文件）
+- **实验数据**: 素材/实验数据/*.csv（12个文件）
 
 ### 第五章素材状态
 
 | 类型 | 数量 | 状态 |
 |------|------|------|
-| 表格 | 12张（表5-1~5-12） | ✅ 已插入初稿 |
-| 图片 | 7张（图5-1,5-3~5-8） | ✅ 已插入初稿 |
-| 正文 | 66段 | ✅ 已完成 |
-| CSV数据 | 7个文件 | ✅ 已生成 |
-| 中间文件 | 30个pipeline可视化 | ✅ 已生成 |
+| 表格 | 12张（表5-1~5-12） | ✅ 已插入 v2_polished |
+| 图片 | 7张（图5-1,5-3~5-8） | ✅ 已插入 v2_polished |
+| 正文 | 75段 | ✅ 已完成（Nature风格润色） |
+| CSV数据 | 12个文件 | ✅ 已生成 |
+| 中间文件 | 30个pipeline可视化 | ⚠️ pipeline_vis/ 为空，需GPU重跑 |
+
+### 报告生成工具链
+
+| 工具 | 文件 | 用途 |
+|------|------|------|
+| poi-tl | poi-tl-project/ | Word模板填充引擎 |
+| analyze_tables.py | 根目录 | 表格结构分析 |
+| check_format.py | 根目录 | 格式检查 |
+| scripts/report/ | 60+ 脚本 | dump/fix/generate/verify全链路 |
