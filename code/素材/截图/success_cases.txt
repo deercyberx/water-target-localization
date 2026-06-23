@@ -1,5 +1,0 @@
-./Data/UAV_image/QZ_Town/QZ_SongCity\DJI_0603.JPG|0.09
-./Data/UAV_image/QZ_Town/QZ_SongCity\DJI_0604.JPG|0.11
-./Data/UAV_image/QZ_Town/QZ_SongCity\DJI_0605.JPG|0.14
-./Data/UAV_image/QZ_Town/QZ_SongCity\DJI_0781.JPG|0.14
-./Data/UAV_image/QZ_Town/QZ_SongCity\DJI_0820.JPG|0.15
